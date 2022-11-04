@@ -3,6 +3,7 @@ package wiremock
 import (
 	"fmt"
 	"net/http"
+  "encoding/json"
 
 	"github.com/prongbang/wiremock/v2/pkg/core"
 )
@@ -26,6 +27,16 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	// Prepared request
 	httpHeader := core.BindHeader(h.Routers.Request.Header, r)
+
+  if r.Header.Get("Content-Type") == "application/json" {
+    // try to parse body and ensure its valid json
+    var p interface{}
+    err := json.NewDecoder(r.Body).Decode(&p)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+  }
 
 	// Prepared response
 	if len(h.Routers.Response.Header) == 0 {
