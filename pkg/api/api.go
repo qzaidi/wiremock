@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prongbang/wiremock/v2/pkg/config"
 	"github.com/prongbang/wiremock/v2/pkg/status"
+  "os"
 	"log"
 	"net/http"
 )
@@ -32,7 +33,8 @@ func (a *api) Register(cfg config.Config) {
 	status.Started(cfg.Port)
 
 	// Listening
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), handlers.CORS(headers, methods, origins)(r)))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), handlers.LoggingHandler(os.Stdout,
+                                                                                      handlers.CORS(headers, methods, origins)(r))))
 }
 
 // NewAPI provide apis
